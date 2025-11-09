@@ -7,6 +7,7 @@ def create_spark_session():
     spark = SparkSession.builder \
         .appName("Sentiment Pre-processing") \
         .master("spark://spark-master:7077") \
+        .config("spark.sql.legacy.timeParserPolicy", "LEGACY") \
         .getOrCreate()
     return spark
 
@@ -15,7 +16,7 @@ def clean_tweet_text(text_col):
     cleaned_col = F.regexp_replace(cleaned_col, r"http\S+", "")  # Remove URLs
     cleaned_col = F.regexp_replace(cleaned_col, r"@\S+", "")     # Remove @mentions
     cleaned_col = F.regexp_replace(cleaned_col, r"RT ", "")      # Remove "RT "
-    cleaned_col = F.regexp_replace(cleaned_col, r"[^\w\s#]", "")
+    cleaned_col = F.regexp_replace(cleaned_col, r"[^\w\s#]", "") # Remove punctuation (except for hashtags)
     cleaned_col = F.trim(cleaned_col)
     return cleaned_col
 
@@ -52,7 +53,6 @@ def main():
         )
     except pyspark.sql.utils.AnalysisException as e:
         print("ERROR: A column name is wrong in your schema.")
-        print("Please check the 'tweet_id', 'created_at', and 'text' column names.")
         print(f"Full error: {e}")
         spark.stop()
         return
@@ -60,10 +60,22 @@ def main():
     cleaned_df = working_df.withColumn(
         "cleaned_text", clean_tweet_text(F.col("original_text"))
     )
+    
+    transformed_df = cleaned_df.withColumn(
+        "date",
+        F.to_date(F.col("created_at"), "EEE MMM dd HH:mm:ss Z yyyy")
+    )
+    
+    final_df = transformed_df.select(
+        "tweet_id",
+        "date",
+        "original_text",
+        "cleaned_text"
+    ).filter(F.col("cleaned_text").isNotNull()) 
 
-    print("--- SUCCESS: Text cleaning applied ---")
-    cleaned_df.printSchema()
-    cleaned_df.select("original_text", "cleaned_text").show(5, truncate=False)
+    print("--- SUCCESS: Data fully transformed ---")
+    final_df.printSchema()
+    final_df.show(5)
 
     spark.stop()
 
