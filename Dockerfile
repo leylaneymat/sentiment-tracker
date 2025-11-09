@@ -1,5 +1,5 @@
 # Bitnami Spark image
-FROM bitnami/spark:3-java11
+FROM apache/spark-py:v3.4.0
 
 # Switch to the root user
 USER root

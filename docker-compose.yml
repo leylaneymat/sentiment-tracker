@@ -1,66 +1,64 @@
-version: '3.7'
+version: "3.7"
 
 services:
-  # HDFS Services
-  namenode:
-    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
-    container_name: namenode
-    ports:
-      - "9870:9870"  # Web UI
-      - "9000:9000"
-    volumes:
-      - hadoop_namenode:/hadoop/dfs/name
-    environment:
-      - CLUSTER_NAME=test
-    
-  datanode:
-    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
-    container_name: datanode
-    depends_on:
-      - namenode
-    volumes:
-      - hadoop_datanode:/hadoop/dfs/data
-    environment:
-      - SERVICE_PRECONDITION=namenode:9870
+    # HDFS Services
+    namenode:
+        image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+        container_name: namenode
+        ports:
+            - "9870:9870" # Web UI
+            - "9000:9000"
+        volumes:
+            - hadoop_namenode:/hadoop/dfs/name
+        environment:
+            CLUSTER_NAME: test
 
-  # 2. Spark Services
-  spark-master:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: spark-master
-    ports:
-      - "8080:8080"  # Web UI
-      - "7077:7077"
-    volumes:
-      # Mount our local 'src' and 'notebooks' folders into the container
-      - ./src:/app/src
-      - ./notebooks:/app/notebooks
-    environment:
-      - SPARK_MODE=master
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
+    datanode:
+        image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+        container_name: datanode
+        depends_on:
+            - namenode
+        volumes:
+            - hadoop_datanode:/hadoop/dfs/data
+        environment:
+            SERVICE_PRECONDITION: "namenode:9870"
 
-  spark-worker:
-    # Use the same custom image we built for the master
-    build:
-      context: .
-      dockerfile: Dockerfile
-    depends_on:
-      - spark-master
-    ports:
-      - "8081:8080" # Web UI
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - HADOOP_CONF_DIR=/etc/hadoop/conf
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
+    # Spark Services
+    spark-master:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: spark-master
+        ports:
+            - "8080:8080" # Web UI
+            - "7077:7077"
+        volumes:
+            - ./src:/app/src
+            - ./notebooks:/app/notebooks
+        environment:
+            SPARK_MODE: master
+            SPARK_RPC_AUTHENTICATION_ENABLED: "no"
+            SPARK_RPC_ENCRYPTION_ENABLED: "no"
+            SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: "no"
+            SPARK_SSL_ENABLED: "no"
+
+    spark-worker:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        depends_on:
+            - spark-master
+        ports:
+            - "8081:8080" # Web UI
+        environment:
+            SPARK_MODE: worker
+            SPARK_MASTER_URL: "spark://spark-master:7077"
+            HADOOP_CONF_DIR: "/etc/hadoop/conf"
+            SPARK_RPC_AUTHENTICATION_ENABLED: "no"
+            SPARK_RPC_ENCRYPTION_ENABLED: "no"
+            SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: "no"
+            SPARK_SSL_ENABLED: "no"
 
 volumes:
-  hadoop_namenode:
-  hadoop_datanode:
+    hadoop_namenode:
+    hadoop_datanode:
