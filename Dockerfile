@@ -12,5 +12,10 @@ RUN pip install -r /app/requirements.txt
 RUN mkdir -p /etc/hadoop/conf
 ENV HADOOP_CONF_DIR=/etc/hadoop/conf
 
+# Create Spark work directory with proper permissions
+RUN mkdir -p /opt/spark/work && \
+    chown -R 1001:1001 /opt/spark/work && \
+    chmod -R 755 /opt/spark/work
+
 # Switch back to user
 USER 1001
