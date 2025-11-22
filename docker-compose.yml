@@ -9,6 +9,7 @@ services:
             - "9870:9870" # Web UI
             - "9000:9000" # HDFS port
         volumes:
+            - ./data/raw_data:/app/raw_data
             - hadoop_namenode:/hadoop/dfs/name
         environment:
             CLUSTER_NAME: test
@@ -40,7 +41,6 @@ services:
             - "8080:8080" # Web UI
             - "7077:7077"
         volumes:
-            - ./src:/app/src
             - ./notebooks:/app/notebooks
         environment:
             SPARK_MODE: master
