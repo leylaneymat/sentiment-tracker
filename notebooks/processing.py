@@ -10,7 +10,6 @@ def main():
         .config("spark.sql.legacy.timeParserPolicy", "LEGACY") \
         .getOrCreate()
 
-    # Schema
     schema = StructType([
         StructField("post_id", StringType(), True),
         StructField("post_created", StringType(), True),
@@ -31,7 +30,6 @@ def main():
     print(f"Loaded {df.count():,} records")
 
     # Processing
-    
     df = df \
         .withColumn("post_ts", to_timestamp(col("post_created"), "EEE MMM dd HH:mm:ss Z yyyy")) \
         .drop("post_created") \
@@ -52,10 +50,8 @@ def main():
     print("Processing done. Sample:")
     df.select("post_id", "post_ts", "post_text_clean", "label", "hour", "is_retweet").show(3, truncate=50)
 
-    # Write as SINGLE Parquet file (no partitioning, no repartitioning)
     output_path = "hdfs:///data/processed/mental_health_clean.parquet"
 
-    # Use .coalesce(1) to force ONE output file
     df.coalesce(1) \
         .write \
         .mode("overwrite") \
