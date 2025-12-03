@@ -22,11 +22,11 @@ pyspark
     ```
   * Install dependencies:
     ```bash
-    pip install -r requirements.txt
+    pip3 install -r requirements.txt
     ```
   * Download required NLTK resources:
     ```bash
-    python -m nltk.downloader vader_lexicon punkt stopwords
+    python3 -m nltk.downloader vader_lexicon punkt stopwords
     ```
 
 ## 2\. Create folders in HDFS
@@ -35,7 +35,7 @@ The command below creates the necessary folders, including `/data/processed` and
 
 ```bash
 docker exec -it namenode bash -c "                        
-  hdfs dfs -mkdir -p /data/processed /data/sentiment && \
+  hdfs dfs -mkdir -p /data/processed /data/sentiment /data/raw_data && \
   hdfs dfs -chmod -R 777 /data
 "
 ```
@@ -74,7 +74,7 @@ Submit the Spark job that reads the cleaned data, performs sentiment analysis us
 docker exec -it spark-master /opt/spark/bin/spark-submit \
   --master spark://spark-master:7077 \
   --conf spark.hadoop.fs.defaultFS=hdfs://namenode:9000 \
-  /app/notebooks/sentiment_analysis.py
+  /app/notebooks/sentiment.py
 ```
 
 Input location:
