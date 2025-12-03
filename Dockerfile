@@ -7,6 +7,7 @@ USER root
 # Install all the Python library dependecies
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r /app/requirements.txt
+RUN python3 -m nltk.downloader -d /opt/spark/nltk_data vader_lexicon punkt stopwords
 
 # Create a Hadoop config directory
 RUN mkdir -p /etc/hadoop/conf
