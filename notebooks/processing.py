@@ -11,6 +11,7 @@ def main():
         .getOrCreate()
 
     schema = StructType([
+        StructField("row_index", IntegerType(), True),
         StructField("post_id", StringType(), True),
         StructField("post_created", StringType(), True),
         StructField("post_text", StringType(), True),
@@ -25,8 +26,14 @@ def main():
 
     # Load from HDFS
     input_path = "hdfs:///data/raw_data/mental-health-data.csv" 
-    df = spark.read.option("header", "true").schema(schema).csv(input_path)
-
+    df = spark.read \
+        .option("header", "true") \
+        .option("multiLine", "true") \
+        .option("quote", '"') \
+        .option("escape", '"') \
+        .schema(schema) \
+        .csv(input_path)
+        
     print(f"Loaded {df.count():,} records")
 
     # Processing

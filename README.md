@@ -77,6 +77,30 @@ docker exec -it spark-master /opt/spark/bin/spark-submit \
   /app/notebooks/sentiment.py
 ```
 
+## 6\. Extract as csv
+
+```bash
+docker exec -it spark-master /opt/spark/bin/spark-submit \
+  --master spark://spark-master:7077 \
+  --conf spark.hadoop.fs.defaultFS=hdfs://namenode:9000 \
+  /app/notebooks/export_as_csv.py
+```
+
+## 6\. Copy csv to host machine
+
+```bash
+docker exec -it namenode hdfs dfs -get /data/export/sentiment_results.csv /tmp/
+docker cp namenode:/tmp/sentiment_results.csv ./
+```
+
+## 7\. Visualize data
+
+```bash
+pip install pandas matplotlib seaborn
+python3 notebooks/visualize.py
+```
+
+
 Input location:
 
 ```
