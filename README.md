@@ -1,6 +1,6 @@
 ## Sentiment Tracker Project
 
-Process and analyze mental-health–related tweets using Spark + HDFS + NLTK.
+Process and analyze mental-health–related tweets using Apache Spark + HDFS + NLTK.
 
 ## 1\. Setup environment for sentiment analysis
 
@@ -86,14 +86,14 @@ docker exec -it spark-master /opt/spark/bin/spark-submit \
   /app/notebooks/export_as_csv.py
 ```
 
-## 6\. Copy csv to host machine
+## 7\. Copy csv to host machine
 
 ```bash
 docker exec -it namenode hdfs dfs -get /data/export/sentiment_results.csv /tmp/
 docker cp namenode:/tmp/sentiment_results.csv ./
 ```
 
-## 7\. Visualize data
+## 8\. Visualize data
 
 ```bash
 pip install pandas matplotlib seaborn
